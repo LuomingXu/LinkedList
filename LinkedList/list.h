@@ -17,11 +17,14 @@ template<typename type> class SingleList
 public:
 	SingleList();
 	~SingleList();
+	Node<type> *GetTheEndNode();
+	Node<type> *GetTheHeadNode();
 	void CreatList(int size);
 	void InsertNode(int position, type data);
 	void Add(type data);
 	void Delete(int position);
 	void Delete();
+	void Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd);
 	void Display();
 private:
 	Node<type> *head;//头结点
@@ -29,7 +32,7 @@ private:
 };
 
 template<typename type>
-SingleList<type>::SingleList()
+inline SingleList<type>::SingleList()
 {
 	head = new Node<type>;
 	head->data = 0;
@@ -37,14 +40,33 @@ SingleList<type>::SingleList()
 }
 
 template<typename type>
-SingleList<type>::~SingleList()
+inline SingleList<type>::~SingleList()
 {
 	cout << "Call the destructor function" << endl;
 	
 	delete head;
 }
 
-template<typename type> void SingleList<type>::CreatList(int size)
+template<typename type>
+inline Node<type>* SingleList<type>::GetTheEndNode()
+{
+	Node<type> *pEnd = head;
+	while (pEnd->pNext)
+	{
+		pEnd = pEnd->pNext;
+	}
+
+	return pEnd;
+}
+
+template<typename type>
+inline Node<type>* SingleList<type>::GetTheHeadNode()
+{
+	return head;
+}
+
+template<typename type> 
+inline void SingleList<type>::CreatList(int size)
 {
 	listSize = size;
 
@@ -163,6 +185,58 @@ inline void SingleList<type>::Delete()
 	{
 		cout << "Function has exited" << endl;
 		return;
+	}
+}
+
+template<typename type>
+inline void SingleList<type>::Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd)
+{
+	if (pHead == NULL || pEnd == NULL)
+		return;
+	if (pHead == pEnd)
+		return;
+
+	Node<type> *pSlow = pHead;
+	Node<type> *pFast = pHead->pNext;
+	Node<type> *pTemp = pHead;
+
+	if (isPositiveOrder)
+	{
+		while (pFast && pFast != pEnd->pNext)
+		{
+			if (pFast->data <= pHead->data)
+			{
+				pTemp = pSlow;
+				pSlow = pSlow->pNext;
+				swap(pSlow->data, pFast->data);
+			}
+
+			pFast = pFast->pNext;
+		}
+
+		swap(pHead->data, pSlow->data);
+
+		Sort(true, pHead, pTemp);
+		Sort(true, pSlow->pNext, pEnd);
+	}
+	else
+	{
+		while (pFast && pFast != pEnd->pNext)
+		{
+			if (pFast->data >= pHead->data)
+			{
+				pTemp = pSlow;
+				pSlow = pSlow->pNext;
+				swap(pSlow->data, pFast->data);
+			}
+
+			pFast = pFast->pNext;
+		}
+
+		swap(pHead->data, pSlow->data);
+
+		Sort(false, pHead, pTemp);
+		Sort(false, pSlow->pNext, pEnd);
 	}
 }
 

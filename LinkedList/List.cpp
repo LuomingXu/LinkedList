@@ -12,8 +12,17 @@ int main()
 	list.Display();
 	list.Delete(2);
 	list.Display();
-	list.Delete();
+	/*list.Delete();
+	list.Display();*/
+	list.Sort(true, list.GetTheHeadNode(), list.GetTheEndNode());
 	list.Display();
-	system("pause");
+
+	string strIN = "123";
+	while (strIN != "exit")
+	{
+		cout << "Input \"exit\" to exit !\n";
+		cin >> strIN;
+	}
+	system("exit");
 	return 0;
 }
