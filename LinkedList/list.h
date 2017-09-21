@@ -2,16 +2,17 @@
 #include<iostream>
 #include<stdlib.h>
 #include<string>
+#include<functional>
 using namespace std;
 
-//结点定义
+//node difinition
 template<typename type> class Node
 {
 public:
 	type data;
 	Node<type> *pNext;
 };
-//链表定义
+//list definition
 template<typename type> class SingleList
 {
 public:
@@ -24,11 +25,15 @@ public:
 	void Add(type data);
 	void Delete(int position);
 	void Delete();
-	void Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd);
+	void Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd, bool (*Compare)(type, type) = SingleList<type>::compare);
 	void Display();
 private:
-	Node<type> *head;//头结点
+	Node<type> *head;//the head node
 	int listSize;
+	static bool compare(type lNode, type rNode)//definition functor
+	{
+		return std::less_equal<type>()(lNode, rNode);//if the lNode is smaller than the rNode return TRUE
+	}
 };
 
 template<typename type>
@@ -42,9 +47,18 @@ inline SingleList<type>::SingleList()
 template<typename type>
 inline SingleList<type>::~SingleList()
 {
-	cout << "Call the destructor function" << endl;
-	
-	delete head;
+	std::cout << "Call the destructor function" << endl;
+	//if you not delete the all node, may cause memory leak
+	if (head)
+	{
+		Node<type> *work;
+		while (head)
+		{
+			work = head->pNext;
+			delete head;
+			head = work;
+		}
+	}
 }
 
 template<typename type>
@@ -72,7 +86,7 @@ inline void SingleList<type>::CreatList(int size)
 
 	if (size < 1)
 	{
-		cout << "Illegal size !" << endl;
+		std::cout << "Illegal size !" << endl;
 		return;
 	}
 
@@ -82,8 +96,8 @@ inline void SingleList<type>::CreatList(int size)
 	while (size-- > 0)
 	{
 		pNew = new Node<type>;
-		cout << "Please input the " << i - size << "th data: ";
-		cin >> pNew->data;
+		std::cout << "Please input the " << i - size << "th data: ";
+		std::cin >> pNew->data;
 		pNew->pNext = NULL;
 		pTemp->pNext = pNew;
 		pTemp = pNew;
@@ -95,7 +109,7 @@ inline void SingleList<type>::InsertNode(int position, type data)
 {
 	if (position < 0 || position > listSize + 1)
 	{
-		cout << "Position is error or beyond size!" << endl;
+		std::cout << "Position is error or beyond size!" << endl;
 		return;
 	}
 	Node<type> *pNew, *pTemp;
@@ -113,7 +127,7 @@ inline void SingleList<type>::InsertNode(int position, type data)
 
 	listSize++;
 }
-//在结点的最后添加一个数据
+//add one node behind the last node
 template<typename type>
 inline void SingleList<type>::Add(type data)
 {
@@ -142,7 +156,7 @@ inline void SingleList<type>::Delete(int position)
 {
 	if (position < 1 || position > listSize)
 	{
-		cout << "Position is error or beyond size!" << endl;
+		std::cout << "Position is error or beyond size!" << endl;
 		return;
 	}
 
@@ -164,10 +178,10 @@ template<typename type>
 inline void SingleList<type>::Delete()
 {
 	string isDelete;
-	cout << "WARNING !!\n" << "Are you sure delete the whole list ??" << endl;
-	cout << "If you want go on, please input \"YES\" !" << endl;
+	std::cout << "WARNING !!\n" << "Are you sure delete the whole list ??" << endl;
+	std::cout << "If you want go on, please input \"YES\" !" << endl;
 
-	cin >> isDelete;
+	std::cin >> isDelete;
 	if (isDelete == "YES")
 	{
 		Node<type> *pDelete = head->pNext, *pTemp;
@@ -183,13 +197,13 @@ inline void SingleList<type>::Delete()
 	}
 	else
 	{
-		cout << "Function has exited" << endl;
+		std::cout << "Function has exited" << endl;
 		return;
 	}
 }
 
 template<typename type>
-inline void SingleList<type>::Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd)
+inline void SingleList<type>::Sort(bool isPositiveOrder, Node<type> *pHead, Node<type> *pEnd, bool (*Compare)(type, type) = SingleList::compare)
 {
 	if (pHead == NULL || pEnd == NULL)
 		return;
@@ -204,12 +218,18 @@ inline void SingleList<type>::Sort(bool isPositiveOrder, Node<type> *pHead, Node
 	{
 		while (pFast && pFast != pEnd->pNext)
 		{
-			if (pFast->data <= pHead->data)
-			{
+			if (Compare(pFast->data, pHead->data))//i don't know why i use this method which is too complex to understand, 
+			{									//and cause my brain a lot, and not as good as i thought
 				pTemp = pSlow;
 				pSlow = pSlow->pNext;
 				swap(pSlow->data, pFast->data);
 			}
+			/*if (pFast->data <= pHead->data)
+			{
+				pTemp = pSlow;
+				pSlow = pSlow->pNext;
+				swap(pSlow->data, pFast->data);
+			}*/
 
 			pFast = pFast->pNext;
 		}
@@ -223,12 +243,18 @@ inline void SingleList<type>::Sort(bool isPositiveOrder, Node<type> *pHead, Node
 	{
 		while (pFast && pFast != pEnd->pNext)
 		{
-			if (pFast->data >= pHead->data)
+			if (!Compare(pFast->data, pHead->data))
 			{
 				pTemp = pSlow;
 				pSlow = pSlow->pNext;
 				swap(pSlow->data, pFast->data);
 			}
+			/*if (pFast->data >= pHead->data)
+			{
+				pTemp = pSlow;
+				pSlow = pSlow->pNext;
+				swap(pSlow->data, pFast->data);
+			}*/
 
 			pFast = pFast->pNext;
 		}
@@ -245,15 +271,15 @@ inline void SingleList<type>::Display()
 {
 	if (listSize == 0)
 	{
-		cout << "List is not exist !" << endl;
+		std::cout << "List is not exist !" << endl;
 		return;
 	}
 
 	Node<type> *p = head->pNext;
 	while (p != NULL)
 	{
-		cout << p->data << "   ";
+		std::cout << p->data << "   ";
 		p = p->pNext;
 	}
-	cout << endl << "All data has been displayed !" << endl;
+	std::cout << endl << "All data has been displayed !" << endl;
 }

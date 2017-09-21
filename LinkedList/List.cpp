@@ -1,6 +1,15 @@
 ﻿#include<iostream>
+#include<functional>
+#include<algorithm>
+#include<numeric>
+#include<vector>
 #include"list.h"
 using namespace std;
+
+int compare(const void * a, const void * b)
+{
+	return(*(int*)a - *(int*)b);
+}
 
 int main()
 {
@@ -16,6 +25,8 @@ int main()
 	list.Display();*/
 	list.Sort(true, list.GetTheHeadNode(), list.GetTheEndNode());
 	list.Display();
+	list.Sort(false, list.GetTheHeadNode(), list.GetTheEndNode());
+	list.Display();
 
 	string strIN = "123";
 	while (strIN != "exit")
@@ -23,6 +34,7 @@ int main()
 		cout << "Input \"exit\" to exit !\n";
 		cin >> strIN;
 	}
-	system("exit");
+
+	system("pause");
 	return 0;
 }

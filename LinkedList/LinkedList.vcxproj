@@ -114,6 +114,7 @@
     <ClCompile Include="List.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="functors.h" />
     <ClInclude Include="list.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
